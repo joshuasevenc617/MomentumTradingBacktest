@@ -37,14 +37,16 @@ def generate_signals(df: pd.DataFrame, short_window: int = 20, long_window: int 
     df["signal"] = 0
     df.loc[df["short_mavg"] > df["long_mavg"], "signal"] = 1
 
-    df["positions"] = df["signal"].diff()
+    df["positions"] = df["signal"].diff().fillna(0)
 
     return df
 
 
 if __name__ == "__main__":
-    input_file = "data/processed/AAPL.csv"
-    output_file = "data/processed/AAPL_signals.csv"
+    # input_file = "data/processed/AAPL.csv"
+    # output_file = "data/processed/AAPL_signals.csv"
+    input_file = "data/processed/300760.SZ.csv"
+    output_file = "data/processed/300760.SZ_signals.csv"
 
     df = load_data(input_file)
 

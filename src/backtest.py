@@ -12,14 +12,22 @@ def backtest_signals(df: pd.DataFrame, initial_capital: float = 10000.0) -> pd.D
         raise KeyError(
             "DataFrame missing 'signal' column. Generate signals before backtesting.")
 
-    df["daily_returns"] = df["Adj Close"].pct_change()
+    df["daily_return"] = df["Adj Close"].pct_change().fillna(0)
+    df["daily_return"].iloc[0] = 0
 
-    df["strategy_return"] = df["daily_returns"] * df["signal"].shift(1)
+    df["shifted_signal"] = df["signal"].shift(1).fillna(0)
+    df["shifted_signal"].iloc[0] = 0
+
+    df["strategy_return"] = df["daily_return"] * df["shifted_signal"].shift(1)
+    df["strategy_return"].iloc[0] = 0
 
     df["cum_strategy_return"] = (1.0 + df["strategy_return"]).cumprod()
-    df["cum_market_return"] = (1.0 + df["daily_returns"]).cumprod()
+    df["cum_strategy_return"].iloc[0] = 1
+    df["cum_market_return"] = (1.0 + df["daily_return"]).cumprod()
+    df["cum_market_return"].iloc[0] = 1
 
     df["portfolio_value"] = initial_capital * df["cum_strategy_return"]
+    df["portfolio_value"].iloc[0] = initial_capital
 
     return df
 
@@ -48,8 +56,10 @@ def save_data(df: pd.DataFrame, file_path: str) -> None:
 
 
 if __name__ == "__main__":
-    input_file = "data/processed/AAPL_signals.csv"
-    output_file = "data/processed/AAPL_backtest_result.csv"
+    # input_file = "data/processed/AAPL_signals.csv"
+    # output_file = "data/processed/AAPL_backtest_result.csv"
+    input_file = "data/processed/300760.SZ_signals.csv"
+    output_file = "data/processed/300760.SZ_backtest_result.csv"
 
     df = load_data(input_file)
 
