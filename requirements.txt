@@ -4,3 +4,4 @@ matplotlib
 backtrader
 scipy
 yfinance
+seaborn
